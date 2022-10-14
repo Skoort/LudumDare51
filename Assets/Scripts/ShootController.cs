@@ -104,11 +104,19 @@ public class ShootController : MonoBehaviour
 
             var overlappedObjects = Physics2D.OverlapAreaAll(bottomLeft, topRight, _suckLayer.value);
 
+            var furniture = overlappedObjects
+                .Select(x => x.GetComponent<Furniture>())
+                .Where(x => x && x.IsPossessed);
+
+            foreach (var piece in furniture)
+            {
+                piece.Exorcise();
+            }
+
             var newGhosts = overlappedObjects
                 .Select(x => x.GetComponent<GhostController>())
                 .Where(x => x)
                 .ToList();
-
             var ghostsStartedSucking = newGhosts.Except(_ghostsBeingSucked);
             var ghostsStoppedSucking = _ghostsBeingSucked.Except(newGhosts);
 
@@ -124,7 +132,7 @@ public class ShootController : MonoBehaviour
 
             foreach (var ghost in newGhosts)
             {
-                var fromTo = _particleSystem.transform.position - ghost.transform.position;
+                Vector2 fromTo = _particleSystem.transform.position - ghost.transform.position;
                 var distance = fromTo.magnitude;
                 var suckStrength = Mathf.Lerp(1, 0.333F, Mathf.Clamp01(distance / _suckRange));
                 ghost.SuckTowards(fromTo.normalized * suckStrength * _suckSpeed);

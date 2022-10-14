@@ -2,33 +2,45 @@ using UnityEngine;
 
 public class Furniture : MonoBehaviour
 {
-    [field: SerializeField]
-    public bool IsOccupied { get; private set; }
+    [SerializeField]
+    private GhostController _ghostPrefab = default;
 
-    private GhostController _ghostController;
+    public bool IsPossessed { get; private set; }
+    public bool IsReserved { get; private set; }
 
-    public void Posess(GhostController ghostController)
+    public void Reserve()
     {
-        Debug.Assert(ghostController, "Attempted to possess furniture with null ghost!");
+        IsReserved = true;
+    }
 
-        if (IsOccupied)
+    public void CancelReservation()
+    {
+        IsReserved = false;
+    }
+
+    public void Possess()
+    {
+        if (IsPossessed)
         {
             return;
         }
 
-        IsOccupied = true;
-        _ghostController = ghostController;
+        IsPossessed = true;
+        IsReserved = true;
     }
 
     public void Exorcise()
     {
-        if (!IsOccupied)
+        Debug.Log("Exorcising " + this.gameObject.name);
+
+        if (!IsPossessed)
         {
             return;
         }
 
-        IsOccupied = false;
-        _ghostController.OnExorcised();
-        _ghostController = null;
+        IsPossessed = false;
+        IsReserved = false;
+        var ghost = Instantiate<GhostController>(_ghostPrefab, transform.position, Quaternion.identity, transform);
+        ghost.AppearedFrom = this;
     }
 }

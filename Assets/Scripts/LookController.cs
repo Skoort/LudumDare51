@@ -19,8 +19,8 @@ public class LookController : MonoBehaviour
     private void Update()
     {
         var lookPoint = _camera.ScreenToWorldPoint(Input.mousePosition);
-        lookPoint.z = 0;
         var lookDir = lookPoint - transform.position;
+        lookDir.z = 0;
         _gunRoot.right = lookDir.normalized;
         if (lookDir.x < 0)
         {
